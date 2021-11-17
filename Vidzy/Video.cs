@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Vidzy
 {
@@ -10,5 +11,11 @@ namespace Vidzy
         public virtual Genre Genre { get; set; }
         public byte Genre_Id { get; set; }
         public Classification Classification { get; set; }
+        public virtual ICollection<Tag> Tags { get; private set; }
+
+        public Video()
+        {
+            Tags = new HashSet<Tag>();
+        }
     }
 }
