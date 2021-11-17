@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Data.Entity;
 
 namespace Vidzy
 {
@@ -69,6 +70,30 @@ namespace Vidzy
             foreach (var g in genres)
                 Console.WriteLine("{0} ({1})", g.Name, g.VideosCount);
 
+            /* Lazy loading */
+            var lazyLoading = dbContext.Videos.ToList();
+
+            foreach (var lazy in lazyLoading)
+            {
+                Console.WriteLine(lazy.Name, lazy.Genre.Name);
+            }
+
+            /* Eager loading */
+            var eagerLoading = dbContext.Videos.Include(g => g.Genre).ToList();
+
+            foreach (var eager in eagerLoading)
+            {
+                Console.WriteLine(eager.Name, eager.Genre.Name);
+            }
+
+            /* Explicit loading */
+
+            dbContext.Genres.Load();
+
+            foreach (var item in lazyLoading)
+            {
+                Console.WriteLine(item.Name, item.Genre.Name);
+            }
         }
     }
 }
