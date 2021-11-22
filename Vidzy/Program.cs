@@ -8,91 +8,76 @@ namespace Vidzy
     {
         static void Main(string[] args)
         {
-            var dbContext = new VidzyContext();
 
-            var showMovie = dbContext.Videos.Where(m => m.Genre.Name == "Action").OrderBy(m => m.Name);
-
-            foreach (var movie in showMovie)
+            AddVideo(new Video
             {
-                Console.WriteLine(movie.Name);
+                Name = "Terminator 1",
+                ReleaseDate = new DateTime(1984, 10, 26),
+                Genre_Id = 2,
+                Classification = Classification.Silver
+            });
+
+            AddTags("classics","drama");
+
+            AddVideoTags("classics", "drama", "comedy");
+
+            Remove();
+
+            RemoveVideo(1);
+
+            RemoveGenre(2, true);
+        }
+
+        public static void AddVideo(Video video)
+        {
+            using (var dbContext = new VidzyContext())
+            {
+                dbContext.Videos.Add(video);
+                dbContext.SaveChanges();
             }
+        }
 
-            var dramaMovies = dbContext.Videos.Where(m => m.Genre.Name == "Drama" && m.Classification == Classification.Gold).OrderByDescending(m => m.ReleaseDate);
-
-            foreach (var drama in dramaMovies)
+        public static void AddTags(params string[] twoTags)
+        {
+            using(var dbContext = new VidzyContext())
             {
-                Console.WriteLine(drama.Name);
+                
             }
-
-            var allMovies = dbContext.Videos.Select(m => new { MovieName = m.Name, Genre = m.Genre.Name });
-
-            foreach (var all in allMovies)
+        }
+        public static void AddVideoTags(params string[] threeTags)
+        {
+            using(var dbContext = new VidzyContext())
             {
-                Console.WriteLine(all.MovieName);
+
             }
-
-            var groups = dbContext.Videos
-                            .GroupBy(v => v.Classification)
-                            .Select(g => new
-                            {
-                                Classification = g.Key.ToString(),
-                                Videos = g.OrderBy(v => v.Name)
-                            });
-
-            foreach (var g in groups)
+        }
+        public static void Remove()
+        {
+            using(var dbContext = new VidzyContext())
             {
-                Console.WriteLine("Classification: " + g.Classification);
 
-                foreach (var v in g.Videos)
-                    Console.WriteLine("\t" + v.Name);
             }
-
-            var classifications = dbContext.Videos
-                                    .GroupBy(v => v.Classification)
-                                    .Select(g => new
-                                    {
-                                        Name = g.Key.ToString(),
-                                        VideosCount = g.Count()
-                                    })
-                                    .OrderBy(c => c.Name);
-
-            foreach (var c in classifications)
-                Console.WriteLine("{0} ({1})", c.Name, c.VideosCount);
-
-            var genres = dbContext.Genres
-                            .GroupJoin(dbContext.Videos, g => g.Id, v => v.Genre_Id, (genre, videos) => new
-                            {
-                                Name = genre.Name,
-                                VideosCount = videos.Count()
-                            })
-                            .OrderByDescending(g => g.VideosCount);
-
-            foreach (var g in genres)
-                Console.WriteLine("{0} ({1})", g.Name, g.VideosCount);
-
-            /* Lazy loading */
-            var lazyLoading = dbContext.Videos.ToList();
-
-            foreach (var lazy in lazyLoading)
+        }
+        public static void RemoveVideo(int id)
+        {
+            using (var dbContext = new VidzyContext())
             {
-                Console.WriteLine(lazy.Name, lazy.Genre.Name);
+                var videos = dbContext.Videos.SingleOrDefault(r => r.Id == id);
+
+                dbContext.Videos.Remove(videos);
+                dbContext.SaveChanges();
             }
-
-            /* Eager loading */
-            var eagerLoading = dbContext.Videos.Include(g => g.Genre).ToList();
-
-            foreach (var eager in eagerLoading)
+        }
+        public static void RemoveGenre(int id, bool enforceVideos)
+        {
+            using (var dbContext = new VidzyContext())
             {
-                Console.WriteLine(eager.Name, eager.Genre.Name);
-            }
+                var genres = dbContext.Genres.Include(g => g.Videos).SingleOrDefault(g => g.Id == id);
 
-            /* Explicit loading */
+                if (enforceVideos) dbContext.Videos.RemoveRange(genres.Videos);
 
-            dbContext.Genres.Load();
-
-            foreach (var item in lazyLoading)
-            {
-                Console.WriteLine(item.Name, item.Genre.Name);
+                dbContext.Genres.Remove(genres);
+                dbContext.SaveChanges();
             }
         }
     }
