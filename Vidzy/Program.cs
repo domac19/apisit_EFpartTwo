@@ -8,7 +8,6 @@ namespace Vidzy
     {
         static void Main(string[] args)
         {
-
             AddVideo(new Video
             {
                 Name = "Terminator 1",
@@ -19,9 +18,9 @@ namespace Vidzy
 
             AddTags("classics","drama");
 
-            AddVideoTags("classics", "drama", "comedy");
+            AddVideoTags(1,"classics", "drama", "comedy");
 
-            Remove();
+            Remove(1,"comedy");
 
             RemoveVideo(1);
 
@@ -41,21 +40,45 @@ namespace Vidzy
         {
             using(var dbContext = new VidzyContext())
             {
+                var tags = dbContext.Tags.Where(t => twoTags.Contains(t.Name)).ToList();
+
+                foreach (var nameTags in twoTags)
+                {
+                    dbContext.Tags.Add(new Tag { Name = nameTags });
+                }
+                dbContext.SaveChanges();
+            }
+        }
+        public static void AddVideoTags(int id, params string[] threeTags)
+        {
+            using(var dbContext = new VidzyContext())
+            {
+                var videoTags = dbContext.Tags.Where(t => threeTags.Contains(t.Name)).ToList();
+
+                foreach (var name in threeTags)
+                {
+                    dbContext.Tags.Add(new Tag { Name = name });
+                }
+
+                var videos = dbContext.Videos.SingleOrDefault(i => i.Id == id);
+
+                dbContext.SaveChanges();
+            }
+        }
+        public static void Remove(int id, params string[] genres)
+        {
+            using(var dbContext = new VidzyContext())
+            {
+                dbContext.Tags.Where(i => genres.Contains(i.Name)).Load();
+
+                var videos = dbContext.Videos.SingleOrDefault(i => i.Id == id);
+
+                foreach (var genre in genres)
+                {
+                    //videos.RemoveTag(genre);
+                }
                 
-            }
-        }
-        public static void AddVideoTags(params string[] threeTags)
-        {
-            using(var dbContext = new VidzyContext())
-            {
-
-            }
-        }
-        public static void Remove()
-        {
-            using(var dbContext = new VidzyContext())
-            {
-
+                dbContext.SaveChanges();
             }
         }
         public static void RemoveVideo(int id)

@@ -6,5 +6,6 @@ namespace Vidzy
     {
         public DbSet<Video> Videos { get; set; }    
         public DbSet<Genre> Genres { get; set; }
+        public DbSet<Tag> Tags { get; set; }
     }
 }
