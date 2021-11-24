@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Vidzy
 {
@@ -16,6 +17,16 @@ namespace Vidzy
         public Video()
         {
             Tags = new HashSet<Tag>();
+        }
+        public void AddTag(Tag tag)
+        {
+            Tags.Add(tag);
+        }
+        public void RemoveTag(string name)
+        {
+            var oneTag = Tags.SingleOrDefault(n => n.Name == name);
+
+            Tags.Remove(oneTag);
         }
     }
 }

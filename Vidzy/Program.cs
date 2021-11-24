@@ -75,7 +75,7 @@ namespace Vidzy
 
                 foreach (var genre in genres)
                 {
-                    //videos.RemoveTag(genre);
+                    videos.RemoveTag(genre);
                 }
                 
                 dbContext.SaveChanges();
